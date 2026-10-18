@@ -1,0 +1,23 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+.python-version
+
+# Local databases and runtime data
+tasks.json
+chroma_db/
+*.sqlite3
+
+# Editors and OS settings
+.idea/
+.vscode/
+.DS_Store

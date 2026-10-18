@@ -1,0 +1,37 @@
+<div class="step-text">
+<h5 id="theory">Theory</h5><p>In previous stages, you built memory and storage systems in isolation. In this task, you will bring everything together into a complete personal assistant agent that combines conversation management, persistent storage, and tool calling into a single cohesive system.</p><p>The key pattern here is that memory is accessed through tool calling rather than directly. Instead of the agent reading from storage on every turn, it decides when and how to interact with the task store based on what the user is asking.</p><p><strong>Tool Calling</strong></p><p>Tool calling allows the LLM to invoke predefined functions when it determines they are needed to fulfill a request. In the OpenAI Responses API, you define tools using a function schema format and pass them alongside your messages:</p><pre><code class="language-python">response = CLIENT.responses.create(
+    model="gpt-4o-mini",
+    input=messages,
+    tools=self.tools
+)
+</code></pre><p>Each tool definition must include a name, description, and parameter schema. The name must match exactly the corresponding function in your <code class="language-python">tool_map</code>. The description tells the LLM when to use the tool, so make it informative.</p><p><strong>The Agent Loop</strong></p><p>A single LLM call is not always enough. When the model decides to call a tool, you need to execute it, append the result to the message history in the correct format, and call the LLM again so it can formulate a response based on the tool output. This cycle repeats until the model returns a plain message rather than a tool call:</p><pre><code class="language-python">messages.append({
+    "type": "function_call_output",
+    "call_id": item.call_id,
+    "output": tool_result,
+})
+</code></pre><p></p><div class="alert alert-primary"> Check the OpenAI Responses API documentation for the exact format required when appending tool results to the message list. </div><p><strong>TasksStore</strong></p><p>The <code class="language-python">TasksStore</code> uses TinyDB to persist task data across sessions. Tasks have three valid statuses: <code class="language-python">"to-do"</code>, <code class="language-python">"in-progress"</code>, and <code class="language-python">"done"</code>. Each store method should return a descriptive string message that the LLM can relay back to the user naturally. Use TinyDB's <code class="language-python">Query()</code> object for field-based lookups and <code class="language-python">self.db.update()</code> with a field dictionary and a query to update existing records.</p><p><strong>ContextManager</strong></p><p>The <code class="language-python">ContextManager</code> is already implemented and handles message history. After each LLM call, the updated message list (including tool calls and outputs) is passed back through <code class="language-python">update_messages()</code>. Over time this causes context to grow — not just with conversation messages but with tool execution traces. The optional <code class="language-python">compact()</code> method addresses this by stripping non-message items from context, keeping only the conversation itself. Use <code class="language-python">get_repr()</code> to observe how context accumulates before and after compaction.</p><h5 id="description">Description</h5><p>The main loop, <code class="language-python">PersonalAssistant</code> class structure, and <code class="language-python">ContextManager</code> are already implemented. Your task is to implement the <code class="language-python">TasksStore</code> methods, fill in the <code class="language-python">self.tools</code> list with correct function schemas, and complete the tool call handling logic inside <code class="language-python">_call_llm()</code>. Do not modify the main loop structure or existing class methods.</p><p></p><div class="alert alert-primary"> The testing suite for this task is extensive and may take up to 5 minutes to complete. </div><h5 id="objectives">Objectives</h5><p>This is what you need to do here:</p><ol><li><p>Implement <code class="language-python">TasksStore</code> methods — <code class="language-python">create_task()</code> to insert a task with name and status, <code class="language-python">find_task()</code> to search by field with exact or pattern match, <code class="language-python">update_task_status()</code> to modify a task's status by name, and <code class="language-python">flush()</code> to clear all records.</p></li><li><p>Fill in <code class="language-python">self.tools</code> with correct OpenAI function calling schemas — include descriptions, parameter types, and ensure tool names match the keys in <code class="language-python">tool_map</code>.</p></li><li><p>Complete <code class="language-python">_call_llm()</code> — append tool results in the correct Responses API format, recurse through the loop for multi-step tool usage, and ensure the LLM always gets a chance to respond after tool execution.</p></li><li><p>(Optional) Implement <code class="language-python">compact()</code> in <code class="language-python">ContextManager</code> to remove tool calls and their outputs from context, preserving only conversation messages.</p></li></ol><h5 id="examples">Examples</h5><pre><code class="language-shell">python step3.py
+
+User: hey, create task "do laundry"
+Assistant: The task "do laundry" has been created and is marked as to-do.
+
+User: ok. create task "call Lucy"
+Assistant: The task "call Lucy" has been created and is marked as to-do.
+
+User: I just started to do laundry
+Assistant: The task "do laundry" is now marked as in-progress.
+
+User: what are tasks in todo?
+Assistant: The task in todo is "call Lucy."
+
+User: what are tasks in progress?
+Assistant: The task in progress is "do laundry."
+
+User: /flush
+[INFO] Flushed
+
+User: what are tasks in progress?
+Assistant: There are no tasks currently in progress.
+
+User: /q
+</code></pre>
+</div>

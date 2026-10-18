@@ -1,0 +1,26 @@
+type: edu
+files:
+  - name: memory_storages/step2.py
+    visible: true
+    learner_created: false
+  - name: test/__init__.py
+    visible: true
+    learner_created: false
+  - name: test/tests.py
+    visible: true
+    learner_created: false
+  - name: tests.py
+    visible: true
+    learner_created: false
+  - name: memory.json
+    visible: true
+    learner_created: true
+  - name: memory_storages/memory.json
+    visible: true
+    learner_created: true
+feedback_link: https://hyperskill.org/projects/554/stages/3175/implement#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: "Sun, 18 Oct 2026 06:25:54 UTC"
+record: -1

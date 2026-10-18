@@ -1,0 +1,9 @@
+[project]
+name = "applied-memory-for-agents"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.5.0",
+    "openai>=3.32.0",
+    "python-dotenv>=1.2.4",
+]

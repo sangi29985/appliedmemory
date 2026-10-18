@@ -1,0 +1,26 @@
+<div class="step-text">
+<h5 id="theory">Theory</h5><p>Agents that can remember information across sessions are far more useful than those starting from scratch every time. To enable this, you need persistent storage systems that can handle different types of data — structured records you want to retrieve by exact field values, and unstructured text you want to retrieve by meaning.</p><p>In this task, you will implement two complementary storage backends that together cover most real-world memory needs for AI agents.</p><p><strong>StructuredStore</strong></p><p>The <code class="language-python">StructuredStore</code> uses TinyDB, a lightweight document database that persists data to a local JSON file. It is ideal for storing categorical or relational data — things like user preferences, settings, or any information you'd want to look up by a specific field value.</p><p>Initialize it with a persistent database file and a named table:</p><pre><code class="language-python">self.db = TinyDB('memory.json')
+self.table = self.db.table('memories')
+</code></pre><p>To query by a specific key-value pair, use TinyDB's <code class="language-python">Query()</code> object:</p><pre><code class="language-python">User = Query()
+results = self.table.search(User[key] == value)
+</code></pre><p><strong>VectorStore</strong></p><p>The <code class="language-python">VectorStore</code> uses ChromaDB for semantic similarity search. Rather than matching exact field values, it finds documents that are semantically related to a query — so searching "What food do I like?" can surface "I love pizza" even without any keyword overlap.</p><p>Each document is stored alongside its embedding vector, generated via the <code class="language-python">_embed()</code> helper method (already implemented for you) using OpenAI's <code class="language-python">text-embedding-3-small</code> model. Initialize ChromaDB with persistent storage and cosine similarity:</p><pre><code class="language-python">self.client = chromadb.PersistentClient(path="./chroma_db")
+self.collection = self.client.get_or_create_collection(
+    name="memories",
+    metadata={"hnsw:space": "cosine"}
+)
+</code></pre><p>When storing, generate a unique ID with <code class="language-python">uuid.uuid4()</code> and add the embedding and document together. When querying, embed the query string and pass it to <code class="language-python">collection.query()</code>.</p><div class="alert alert-primary"><p>Both stores should persist data across sessions — use the persistent client options for both TinyDB and ChromaDB rather than in-memory alternatives.</p></div><h5 id="description">Description</h5><p>The CLI structure and the <code class="language-python">_embed()</code> helper are already implemented. Your task is to implement the <code class="language-python">StructuredStore</code> and <code class="language-python">VectorStore</code> classes — their <code class="language-python">store()</code>, <code class="language-python">query()</code>, and <code class="language-python">flush()</code> methods.</p><p>The CLI exposes six commands across the two stores. Structured store commands parse input in <code class="language-python">key=value;key=value</code> format before passing it to your class. Vector store commands pass raw text strings. Do not modify the CLI command structure.</p><h5 id="objectives">Objectives</h5><p>This is what you need to do here:</p><ol><li><p>Implement <code class="language-python">StructuredStore</code> using TinyDB — initialize with a persistent JSON file, implement <code class="language-python">store()</code> to insert dictionary data, <code class="language-python">query()</code> to search by key-value pair with an <code class="language-python">n_results</code> limit, and <code class="language-python">flush()</code> to clear the table.</p></li><li><p>Implement <code class="language-python">VectorStore</code> using ChromaDB — initialize with a persistent client and cosine similarity collection, implement <code class="language-python">store()</code> to embed and save text with a generated UUID, <code class="language-python">query()</code> to embed the query and retrieve the top <code class="language-python">n_results</code> similar documents, and <code class="language-python">flush()</code> to delete all entries from the collection.</p></li></ol><h5 id="examples">Examples</h5><p>Example 1 — vector store operations:</p><pre><code class="language-shell">python step2.py vector-store-add --content "I love pizza"
+python step2.py vector-store-add --content "My favorite color is blue"
+
+python step2.py vector-store-query --query "What food do I like?" --n 3
+# Output: ["I love pizza", ...]
+
+python step2.py vector-store-flush
+</code></pre><p>Example 2 — structured store operations:</p><pre><code class="language-shell">python step2.py structured-store-add --data "name=John;age=30;city=NYC"
+python step2.py structured-store-add --data "name=Jane;age=25;city=LA"
+
+python step2.py structured-store-query --key "city" --value "NYC" --n 5
+# Output: [{"name": "John", "age": "30", "city": "NYC"}]
+
+python step2.py structured-store-flush
+</code></pre>
+</div>

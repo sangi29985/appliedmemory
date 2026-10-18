@@ -1,0 +1,14 @@
+type: edu
+files:
+  - name: test/__init__.py
+    visible: true
+    learner_created: false
+  - name: test/tests.py
+    visible: true
+    learner_created: false
+  - name: tests.py
+    visible: true
+    learner_created: false
+feedback_link: https://hyperskill.org/projects/554/stages/3174/implement#comment
+status: Solved
+record: -1

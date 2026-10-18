@@ -1,0 +1,23 @@
+type: edu
+files:
+  - name: personal_assistant/step3.py
+    visible: true
+    learner_created: false
+  - name: test/__init__.py
+    visible: true
+    learner_created: false
+  - name: test/tests.py
+    visible: true
+    learner_created: false
+  - name: tests.py
+    visible: true
+    learner_created: false
+  - name: tasks.json
+    visible: true
+    learner_created: true
+feedback_link: https://hyperskill.org/projects/554/stages/3176/implement#comment
+status: Failed
+feedback:
+  message: "Exception in test #1"
+  time: "Sun, 18 Oct 2026 06:32:52 UTC"
+record: -1
